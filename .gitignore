@@ -17,3 +17,4 @@ run_scripts/
 *.ini
 saved_models
 notebooks
+slurm.sh

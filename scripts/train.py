@@ -15,19 +15,26 @@ import mp_lib.comet_utils as comet_utils
 
 
 def main(args):
+    #just checks for some input in utils.const
     if args.experiment is not None:
         comet_utils.log_exp_meta(args)
+    #setting random seeds for comparision
     reset_all_seeds(args.seed)
+    #try to use GPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    #gets the model - from several files back
     wrapper = factory.fetch_model(args).to(device)
+    #load and save checkpoints
     if args.ckpt_p != "":
         ckpt_p = args.ckpt_p
         ckpt = torch.load(ckpt_p)
         wrapper.load_state_dict(ckpt["state_dict"])
         logger.info(f"Loaded weights from {ckpt_p}")
 
+    #config model
     wrapper.model.object_head.object_tensors.to(device)
 
+    #fitting config
     ckpt_callback = ModelCheckpoint(
         monitor="loss__val",
         verbose=True,
@@ -39,7 +46,9 @@ def main(args):
 
     pbar_cb = pl.callbacks.progress.TQDMProgressBar(refresh_rate=1)
     model_summary_cb = ModelSummary(max_depth=3)
+    #visualising stuff
     callbacks = [ckpt_callback, pbar_cb, model_summary_cb]
+    #setting up the trainer
     trainer = pl.Trainer(
         gradient_clip_val=args.grad_clip,
         gradient_clip_algorithm="norm",
@@ -56,6 +65,7 @@ def main(args):
         enable_model_summary=False,
     )
 
+    #resetting some parameters again
     reset_all_seeds(args.seed)
     train_loader = factory.fetch_dataloader(args, "train")
     if args.valsplit == "none":
@@ -66,6 +76,7 @@ def main(args):
     logger.info(f"Hyperparameters: \n {pformat(args)}")
     logger.info("*** Started training ***")
     reset_all_seeds(args.seed)
+    #finally fitting
     trainer.fit(wrapper, train_loader, val_loader, ckpt_path=args.ckpt_p)
 
 

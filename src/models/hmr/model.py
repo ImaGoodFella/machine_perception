@@ -17,9 +17,12 @@ class HMR(nn.Module):
             from src.nets.backbone.resnet import resnet50 as resnet
         elif backbone == "resnet18":
             from src.nets.backbone.resnet import resnet18 as resnet
+        elif backbone == 'resnext101_32x8d':
+            from src.nets.backbone.resnet import resnext101_32x8d as resnet
         else:
             assert False
         self.backbone = resnet(pretrained=True)
+
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
         self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=3)
         self.head_l = HandHMR(feat_dim, is_rhand=False, n_iter=3)

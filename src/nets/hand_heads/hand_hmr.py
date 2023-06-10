@@ -25,6 +25,14 @@ class HandHMR(nn.Module):
             nn.Linear(512, 3),
         )
 
+        self.shape_init = nn.Sequential(
+            nn.Linear(feat_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+        )
+
         self.hand_specs = hand_specs
         self.n_iter = n_iter
         self.avgpool = nn.AdaptiveAvgPool2d(1)
@@ -33,12 +41,15 @@ class HandHMR(nn.Module):
         batch_size = features.shape[0]
         dev = features.device
         init_pose = (
+            #ist das 3 (statt 6 hier) weils nur die rechte Hand ist?
             matrix_to_rotation_6d(axis_angle_to_matrix(torch.zeros(16, 3)))
             .reshape(1, -1)
             .repeat(batch_size, 1)
         )
-        init_shape = torch.zeros(1, 10).repeat(batch_size, 1)
+        #init_shape = torch.zeros(1, 10).repeat(batch_size, 1)
+        init_shape = self.shape_init(features)
         init_transl = self.cam_init(features)
+        #new_pose = self.pose_init(init_pose)
 
         out = {}
         out["pose_6d"] = init_pose
@@ -59,10 +70,12 @@ class HandHMR(nn.Module):
         init_cam_t = init_vdict["cam_t/wp"].clone()
         pred_vdict = self.hmr_layer(feat, init_vdict, self.n_iter)
 
+        #forward prediction of pose
         pred_rotmat = rotation_6d_to_matrix(pred_vdict["pose_6d"].reshape(-1, 6)).view(
             batch_size, 16, 3, 3
         )
 
+        #pose
         pred_vdict.register("pose", pred_rotmat)
         pred_vdict.register("cam_t.wp.init", init_cam_t)
         pred_vdict = pred_vdict.replace_keys("/", ".")

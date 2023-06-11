@@ -1,10 +1,9 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class HMRLayer(nn.Module):
-    def __init__(self, feat_dim, mid_dim, specs_dict, nhead=3, num_layers=4):
+    def __init__(self, feat_dim, mid_dim, specs_dict):
         super().__init__()
 
         self.feat_dim = feat_dim
@@ -14,16 +13,20 @@ class HMRLayer(nn.Module):
         vector_dim = sum(list(zip(*specs_dict.items()))[1])
         hmr_dim = feat_dim + vector_dim
 
-        # Construct refine
-        self.refine_transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model=hmr_dim, nhead=nhead),
-            num_layers=num_layers
+        # construct refine
+        self.refine = nn.Sequential(
+            nn.Linear(hmr_dim, mid_dim),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(mid_dim, mid_dim),
+            nn.ReLU(),
+            nn.Dropout(),
         )
 
-        # Construct decoders
+        # construct decoders
         decoders = {}
         for key, vec_size in specs_dict.items():
-            decoders[key] = nn.Linear(hmr_dim, vec_size)
+            decoders[key] = nn.Linear(mid_dim, vec_size)
         self.decoders = nn.ModuleDict(decoders)
 
         self.init_weights()
@@ -38,7 +41,7 @@ class HMRLayer(nn.Module):
         for i in range(n_iter):
             vectors = list(zip(*pred_vector_dict.items()))[1]
             xc = torch.cat([feat] + list(vectors), dim=1)
-            xc = self.refine_transformer(xc.unsqueeze(1)).squeeze(1)
+            xc = self.refine(xc)
             for key, decoder in self.decoders.items():
                 pred_vector_dict[key] = decoder(xc) + pred_vector_dict[key]
 

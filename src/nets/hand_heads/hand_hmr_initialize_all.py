@@ -17,12 +17,30 @@ class HandHMR(nn.Module):
         hand_specs = {"pose_6d": 6 * 16, "cam_t/wp": 3, "shape": 10}
         self.hmr_layer = HMRLayer(feat_dim, 1024, hand_specs)
 
+        print(feat_dim)
+
         self.cam_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
             nn.ReLU(),
             nn.Linear(512, 512),
             nn.ReLU(),
             nn.Linear(512, 3),
+        )
+
+        self.shape_init = nn.Sequential(
+            nn.Linear(feat_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+        )
+
+        self.pose_init = nn.Sequential(
+            nn.Linear(feat_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 6 * 16),
         )
 
         self.hand_specs = hand_specs
@@ -32,12 +50,8 @@ class HandHMR(nn.Module):
     def init_vector_dict(self, features):
         batch_size = features.shape[0]
         dev = features.device
-        init_pose = (
-            matrix_to_rotation_6d(axis_angle_to_matrix(torch.zeros(16, 3)))
-            .reshape(1, -1)
-            .repeat(batch_size, 1)
-        )
-        init_shape = torch.zeros(1, 10).repeat(batch_size, 1)
+        init_pose = self.pose_init(features)
+        init_shape = self.shape_init(features)
         init_transl = self.cam_init(features)
 
         out = {}
@@ -59,10 +73,12 @@ class HandHMR(nn.Module):
         init_cam_t = init_vdict["cam_t/wp"].clone()
         pred_vdict = self.hmr_layer(feat, init_vdict, self.n_iter)
 
+        # Forward prediction of pose
         pred_rotmat = rotation_6d_to_matrix(pred_vdict["pose_6d"].reshape(-1, 6)).view(
             batch_size, 16, 3, 3
         )
 
+        # Pose
         pred_vdict.register("pose", pred_rotmat)
         pred_vdict.register("cam_t.wp.init", init_cam_t)
         pred_vdict = pred_vdict.replace_keys("/", ".")

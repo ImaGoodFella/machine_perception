@@ -8,8 +8,13 @@ from loguru import logger
 import os.path as op
 import json
 
-# folder used for debugging
-DUMMY_EXP = "xxxxxxxxx"
+
+import datetime
+
+current_time = datetime.datetime.now()
+time_string = current_time.strftime("%Y_%m_%d_%H_%M_%S")
+
+DUMMY_EXP = time_string
 
 
 def add_paths(args):

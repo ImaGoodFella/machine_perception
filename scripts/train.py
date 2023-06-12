@@ -15,6 +15,9 @@ import mp_lib.comet_utils as comet_utils
 
 
 def main(args):
+
+    args.batch_size=8
+    args.num_workers=128
     #just checks for some input in utils.const
     if args.experiment is not None:
         comet_utils.log_exp_meta(args)

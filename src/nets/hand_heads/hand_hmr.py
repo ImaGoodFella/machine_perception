@@ -25,6 +25,22 @@ class HandHMR(nn.Module):
             nn.Linear(512, 3),
         )
 
+        self.shape_init = nn.Sequential(
+            nn.Linear(feat_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+        )
+
+        self.pose_init = nn.Sequential(
+            nn.Linear(feat_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 16 * 3),
+        )
+        
         self.hand_specs = hand_specs
         self.n_iter = n_iter
         self.avgpool = nn.AdaptiveAvgPool2d(1)
@@ -33,11 +49,11 @@ class HandHMR(nn.Module):
         batch_size = features.shape[0]
         dev = features.device
         init_pose = (
-            matrix_to_rotation_6d(axis_angle_to_matrix(torch.zeros(16, 3)))
-            .reshape(1, -1)
-            .repeat(batch_size, 1)
+            matrix_to_rotation_6d(axis_angle_to_matrix(self.pose_init(features).reshape(batch_size, 16, 3)))
+            .reshape(batch_size, -1)
         )
-        init_shape = torch.zeros(1, 10).repeat(batch_size, 1)
+
+        init_shape = self.shape_init(features)
         init_transl = self.cam_init(features)
 
         out = {}
@@ -45,9 +61,11 @@ class HandHMR(nn.Module):
         out["shape"] = init_shape
         out["cam_t/wp"] = init_transl
         out = xdict(out).to(dev)
+
         return out
 
     def forward(self, features, use_pool=True):
+
         batch_size = features.shape[0]
         if use_pool:
             feat = self.avgpool(features)

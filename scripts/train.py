@@ -13,11 +13,10 @@ import src.utils.factory as factory
 from mp_lib.torch_utils import reset_all_seeds
 import mp_lib.comet_utils as comet_utils
 
-
 def main(args):
 
-    args.batch_size=8
-    args.num_workers=128
+    args.batch_size=32
+    args.num_workers=32
     #just checks for some input in utils.const
     if args.experiment is not None:
         comet_utils.log_exp_meta(args)

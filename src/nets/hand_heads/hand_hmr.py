@@ -22,7 +22,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 3),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256, 3),
         )
 
         self.shape_init = nn.Sequential(
@@ -30,7 +32,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 10),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256, 10),
         )
 
         self.pose_init = nn.Sequential(
@@ -38,7 +42,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 16 * 3),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256,16 * 3),
         )
         
         self.hand_specs = hand_specs

@@ -18,27 +18,27 @@ class HandHMR(nn.Module):
         self.hmr_layer = HMRLayer(feat_dim, 1024, hand_specs)
 
         self.cam_init = nn.Sequential(
-            nn.Linear(feat_dim, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 3),
+            nn.Linear(feat_dim, 512),
+            nn.GELU(),
+            nn.Linear(512, 512),
+            nn.GELU(),
+            nn.Linear(512, 3),
         )
 
         self.shape_init = nn.Sequential(
-            nn.Linear(feat_dim, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 10),
+            nn.Linear(feat_dim, 512),
+            nn.GELU(),
+            nn.Linear(512, 512),
+            nn.GELU(),
+            nn.Linear(512, 10),
         )
 
         self.pose_init = nn.Sequential(
-            nn.Linear(feat_dim, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 1024),
-            nn.ELU(),
-            nn.Linear(1024, 16 * 3),
+            nn.Linear(feat_dim, 512),
+            nn.GELU(),
+            nn.Linear(512, 512),
+            nn.GELU(),
+            nn.Linear(512, 16 * 3),
         )
         
         self.hand_specs = hand_specs

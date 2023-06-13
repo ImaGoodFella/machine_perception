@@ -8,6 +8,7 @@ from src.nets.backbone.utils import get_backbone_info
 import mp_lib.ld_utils as ld_utils
 from mp_lib.unidict import xdict
 
+import copy
 
 class HMR(nn.Module):
     def __init__(self, backbone, focal_length, img_res, args):
@@ -24,7 +25,10 @@ class HMR(nn.Module):
         else:
             assert False
 
-        self.backbone = resnet(pretrained=True)
+        self.backbone_pose = resnet(pretrained=True)
+        self.backbone_shape = resnet(pretrained=True)
+        self.backbone_cam = resnet(pretrained=True)
+        self.backbone_refine = resnet(pretrained=True)
 
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
         self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=100)
@@ -40,10 +44,14 @@ class HMR(nn.Module):
         self.focal_length = focal_length
 
     def inference(self, images, K):
+        
+        
+        features_pose = self.backbone_pose(images)
+        features_shape = self.backbone_shape(images)
+        features_cam = self.backbone_cam(images)
+        features_refine = self.backbone_refine(images) 
 
-        features = self.backbone(images)
-
-        hmr_output_r = self.head_r(features)
+        hmr_output_r = self.head_r(features_pose, features_shape, features_cam, features_refine)
 
         # weak perspective
         root_r = hmr_output_r["cam_t.wp"]
@@ -64,9 +72,12 @@ class HMR(nn.Module):
         images = inputs["img"]
         K = meta_info["intrinsics"]
         
-        features = self.backbone(images)
+        features_pose = self.backbone_pose(images)
+        features_shape = self.backbone_shape(images)
+        features_cam = self.backbone_cam(images)
+        features_refine = self.backbone_refine(images) 
 
-        hmr_output_r = self.head_r(features)
+        hmr_output_r = self.head_r(features_pose, features_shape, features_cam, features_refine)
 
         # weak perspective
         root_r = hmr_output_r["cam_t.wp"]

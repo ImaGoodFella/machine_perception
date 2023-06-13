@@ -19,11 +19,9 @@ class HandHMR(nn.Module):
 
         self.cam_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 3),
@@ -31,11 +29,9 @@ class HandHMR(nn.Module):
 
         self.shape_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 10),
@@ -43,11 +39,9 @@ class HandHMR(nn.Module):
 
         self.pose_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 512),
-            nn.BatchNorm1d(512),
             nn.ELU(),
             nn.Dropout(),
             nn.Linear(512, 16 * 3),

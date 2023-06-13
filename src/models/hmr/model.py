@@ -27,8 +27,7 @@ class HMR(nn.Module):
         self.backbone = resnet(pretrained=True)
 
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
-        self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=100)
-        self.head_l = HandHMR(feat_dim, is_rhand=False, n_iter=100)
+        self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=3)
 
         self.mano_r = MANOHead(
             is_rhand=True, focal_length=focal_length, img_res=img_res

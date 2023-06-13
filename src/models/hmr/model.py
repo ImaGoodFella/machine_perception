@@ -17,6 +17,8 @@ class HMR(nn.Module):
             from src.nets.backbone.resnet import resnet50 as resnet
         elif backbone == "resnet18":
             from src.nets.backbone.resnet import resnet18 as resnet
+        elif backbone == "resnet152":
+            from src.nets.backbone.resnet import resnet152 as resnet
         elif backbone == 'resnext101_32x8d':
             from src.nets.backbone.resnet import resnext101_32x8d as resnet
         else:

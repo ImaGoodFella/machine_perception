@@ -70,6 +70,7 @@ class HandHMR(nn.Module):
         if use_pool:
             feat = self.avgpool(features)
             feat = feat.view(feat.size(0), -1)
+
         else:
             feat = features
 

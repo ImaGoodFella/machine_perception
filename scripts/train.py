@@ -17,7 +17,7 @@ def main(args):
 
     args.batch_size=32
     args.num_workers=32
-    args.lr = 1e-4
+    args.lr = 5e-5
     args.eval_every_epoch=1
 
     #just checks for some input in utils.const
@@ -27,7 +27,7 @@ def main(args):
     reset_all_seeds(args.seed)
     #try to use GPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    #gets the model - from several files backd
+    #gets the model - from several files back
     wrapper = factory.fetch_model(args).to(device)
     #load and save checkpoints
     if args.ckpt_p != "":

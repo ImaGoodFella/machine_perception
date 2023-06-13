@@ -23,7 +23,9 @@ class HMR(nn.Module):
             from src.nets.backbone.resnet import resnext101_32x8d as resnet
         else:
             assert False
+
         self.backbone = resnet(pretrained=True)
+        self.backbone_refine = resnet(pretrained=True)
 
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
         self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=100)
@@ -39,9 +41,11 @@ class HMR(nn.Module):
         self.focal_length = focal_length
 
     def inference(self, images, K):
-        features = self.backbone(images)
 
-        hmr_output_r = self.head_r(features)
+        features = self.backbone(images)
+        feature_refine = self.backbone_refine(images)
+
+        hmr_output_r = self.head_r(features, feature_refine)
 
         # weak perspective
         root_r = hmr_output_r["cam_t.wp"]
@@ -61,9 +65,11 @@ class HMR(nn.Module):
     def forward(self, inputs, meta_info):
         images = inputs["img"]
         K = meta_info["intrinsics"]
+        
         features = self.backbone(images)
+        features_refine = self.backbone_refine(images)
 
-        hmr_output_r = self.head_r(features)
+        hmr_output_r = self.head_r(features, features_refine)
 
         # weak perspective
         root_r = hmr_output_r["cam_t.wp"]

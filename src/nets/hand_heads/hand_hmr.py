@@ -64,7 +64,7 @@ class HandHMR(nn.Module):
 
         return out
 
-    def forward(self, features, use_pool=True):
+    def forward(self, features, features_refine, use_pool=True):
 
         batch_size = features.shape[0]
         if use_pool:

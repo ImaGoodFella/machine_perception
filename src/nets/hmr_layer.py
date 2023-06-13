@@ -23,17 +23,20 @@ class HMRLayer(nn.Module):
             nn.Dropout(),
         )
 
-        # construct decoders
+    # construct decoders
         decoders = {}
+        prev_dim = 0
         for key, vec_size in specs_dict.items():
-            decoders[key] = nn.Sequential(nn.Linear(mid_dim, vec_size))
+            decoders[key] = nn.Linear(mid_dim + prev_dim, vec_size)
+            prev_dim += vec_size
+
         self.decoders = nn.ModuleDict(decoders)
 
         self.init_weights()
 
     def init_weights(self):
         for key, decoder in self.decoders.items():
-            nn.init.xavier_uniform_(decoder[-1].weight, gain=0.01)
+            nn.init.xavier_uniform_(decoder.weight, gain=0.01)
             self.decoders[key] = decoder
 
     def forward(self, feat, init_vector_dict, n_iter):
@@ -42,8 +45,12 @@ class HMRLayer(nn.Module):
             vectors = list(zip(*pred_vector_dict.items()))[1]
             xc = torch.cat([feat] + list(vectors), dim=1)
             xc = self.refine(xc)
+
+            xc_prev = xc
             for key, decoder in self.decoders.items():
-                pred_vector_dict[key] = decoder(xc) + pred_vector_dict[key]
+                pred_vector_dict[key] = decoder(xc_prev) + pred_vector_dict[key]
+                xc_prev = torch.cat([xc_prev, pred_vector_dict[key]], dim=1)
 
         pred_vector_dict.has_invalid()
         return pred_vector_dict
+

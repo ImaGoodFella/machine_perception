@@ -44,7 +44,7 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 256),
             nn.ELU(),
-            nn.Linear(256,16 * 3),
+            nn.Linear(256, 16 * 6),
         )
         
         self.hand_specs = hand_specs
@@ -52,13 +52,10 @@ class HandHMR(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(1)
 
     def init_vector_dict(self, features):
-        batch_size = features.shape[0]
-        dev = features.device
-        init_pose = (
-            matrix_to_rotation_6d(axis_angle_to_matrix(self.pose_init(features).reshape(batch_size, 16, 3)))
-            .reshape(batch_size, -1)
-        )
 
+        dev = features.device
+
+        init_pose = self.pose_init(features)
         init_shape = self.shape_init(features)
         init_transl = self.cam_init(features)
 

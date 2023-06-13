@@ -26,21 +26,15 @@ class HMRLayer(nn.Module):
         # construct decoders
         decoders = {}
         for key, vec_size in specs_dict.items():
-            decoders[key] = nn.Sequential(
-                nn.Linear(mid_dim, mid_dim//2),
-                nn.ELU(),
-                nn.Dropout(),
-                nn.Linear(mid_dim//2, vec_size)
-            )
+            decoders[key] = nn.Linear(mid_dim, vec_size)
         self.decoders = nn.ModuleDict(decoders)
 
         self.init_weights()
 
     def init_weights(self):
-        pass
-        #for key, decoder in self.decoders.items():
-            #nn.init.xavier_uniform_(decoder.weight, gain=0.01)
-            #self.decoders[key] = decoder
+        for key, decoder in self.decoders.items():
+            nn.init.xavier_uniform_(decoder.weight, gain=0.01)
+            self.decoders[key] = decoder
 
     def forward(self, feat, init_vector_dict, n_iter):
         pred_vector_dict = init_vector_dict

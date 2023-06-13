@@ -19,7 +19,7 @@ def main(args):
     args.num_workers=32
     args.lr = 1e-4
     args.eval_every_epoch=1
-
+    
     #just checks for some input in utils.const
     if args.experiment is not None:
         comet_utils.log_exp_meta(args)

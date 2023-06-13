@@ -27,7 +27,7 @@ def main(args):
     reset_all_seeds(args.seed)
     #try to use GPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    #gets the model - from several files back
+    #gets the model - from several files backd
     wrapper = factory.fetch_model(args).to(device)
     #load and save checkpoints
     if args.ckpt_p != "":

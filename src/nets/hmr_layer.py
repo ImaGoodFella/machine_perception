@@ -26,7 +26,7 @@ class HMRLayer(nn.Module):
         # construct decoders
         decoders = {}
         for key, vec_size in specs_dict.items():
-            decoders[key] = nn.Sequential(nn.Linear(mid_dim, mid_dim//2), nn.ELU(), nn.Dropout(), nn.Linear(mid_dim//2, vec_size))
+            decoders[key] = nn.Sequential(nn.Linear(mid_dim, mid_dim//2), nn.ELU(), nn.Linear(mid_dim//2, vec_size))
         self.decoders = nn.ModuleDict(decoders)
 
         self.init_weights()

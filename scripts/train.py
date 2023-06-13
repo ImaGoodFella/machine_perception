@@ -4,6 +4,7 @@ import torch
 import pytorch_lightning as pl
 from loguru import logger
 from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pprint import pformat
 
 sys.path.append(".")
@@ -46,8 +47,19 @@ def main(args):
 
     pbar_cb = pl.callbacks.progress.TQDMProgressBar(refresh_rate=1)
     model_summary_cb = ModelSummary(max_depth=3)
+
+    # early stopping
+    early_stop_cb = EarlyStopping(
+        monitor='loss__val',
+        min_delta=0.00,
+        patience=10,
+        verbose=True,
+        mode='min'
+    )
+
+
     #visualising stuff
-    callbacks = [ckpt_callback, pbar_cb, model_summary_cb]
+    callbacks = [ckpt_callback, pbar_cb, model_summary_cb, early_stop_cb]
     #setting up the trainer
     trainer = pl.Trainer(
         gradient_clip_val=args.grad_clip,

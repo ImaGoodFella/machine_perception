@@ -17,12 +17,14 @@ class HMR(nn.Module):
             from src.nets.backbone.resnet import resnet50 as resnet
         elif backbone == "resnet18":
             from src.nets.backbone.resnet import resnet18 as resnet
+        elif backbone == "resnext101_32x8d":
+            from src.nets.backbone.resnet import resnext101_32x8d as resnet
         else:
             assert False
         self.backbone = resnet(pretrained=True)
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
-        self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=3)
-        self.head_l = HandHMR(feat_dim, is_rhand=False, n_iter=3)
+        self.head_r = HandHMR(feat_dim, is_rhand=True, n_iter=100)
+        #self.head_l = HandHMR(feat_dim, is_rhand=False, n_iter=3)
 
         self.mano_r = MANOHead(
             is_rhand=True, focal_length=focal_length, img_res=img_res
@@ -59,6 +61,7 @@ class HMR(nn.Module):
         features = self.backbone(images)
 
         hmr_output_r = self.head_r(features)
+        # do for left
 
         # weak perspective
         root_r = hmr_output_r["cam_t.wp"]

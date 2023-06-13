@@ -355,8 +355,6 @@ def get_activation(name):
         return nn.Softplus()
     elif name == "softshrink":
         return nn.Softshrink()
-    elif name == "elu":
-        return nn.ELU()
     else:
         print("Undefined activation: %s" % (name))
         assert False

@@ -16,10 +16,10 @@ class HMRLayer(nn.Module):
         # construct refine
         self.refine = nn.Sequential(
             nn.Linear(hmr_dim, mid_dim),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Dropout(),
             nn.Linear(mid_dim, mid_dim),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Dropout(),
         )
 

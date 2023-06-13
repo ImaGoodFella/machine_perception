@@ -19,25 +19,25 @@ class HandHMR(nn.Module):
 
         self.cam_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 3),
         )
 
         self.shape_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 10),
         )
 
         self.pose_init = nn.Sequential(
             nn.Linear(feat_dim, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 512),
-            nn.ELU(),
+            nn.ReLU(),
             nn.Linear(512, 16 * 3),
         )
         

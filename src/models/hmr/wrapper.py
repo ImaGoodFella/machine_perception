@@ -10,7 +10,7 @@ class Wrapper(GenericWrapper):
         super().__init__(args)
         self.model = HMR(
             backbone='resnext101_32x8d',
-            #backbone="resnet50",
+            #backbone="resnet152",
             #backbone="resnet18",
             focal_length=args.focal_length,
             img_res=args.img_res,

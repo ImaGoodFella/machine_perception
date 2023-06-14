@@ -161,6 +161,11 @@ def compute_joint3d_error(joints3d_cam_gt, joints3d_cam_pred, valid_jts):
     dist = dist.cpu().numpy()
     return dist
 
+def compute_joint3d_error_train(joints3d_cam_gt, joints3d_cam_pred, valid_jts):
+    dist = ((joints3d_cam_gt - joints3d_cam_pred) ** 2).sum(dim=2).sqrt()
+    #invalid_idx = torch.nonzero((1 - valid_jts).long()).reshape(-1)
+    #dist[invalid_idx, :] = float("nan")
+    return dist
 
 def compute_joint2d_error(joints2d_gt, joints2d_pred, valid_jts, img_res):
     dist = ((joints2d_gt - joints2d_pred) ** 2).sum(dim=2).sqrt()
@@ -168,7 +173,6 @@ def compute_joint2d_error(joints2d_gt, joints2d_pred, valid_jts, img_res):
     # percentage of the patch
     dist = dist[valid_idx].cpu().numpy() / img_res * 100
     return dist
-
 
 def compute_mrrpe(root_r_gt, root_l_gt, root_r_pred, root_l_pred, is_valid):
     rel_vec_gt = root_l_gt - root_r_gt

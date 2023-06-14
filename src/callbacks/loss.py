@@ -5,6 +5,8 @@ from src.callbacks.loss_modules import hand_kp3d_loss
 from src.callbacks.loss_modules import vector_loss
 from src.callbacks.loss_modules import joints_loss
 from src.callbacks.loss_modules import mano_loss
+from src.callbacks.eval_modules import eval_mpjpe_ra
+import mp_lib.metrics as metrics
 
 mse_loss = nn.MSELoss(reduction="none")
 
@@ -65,12 +67,26 @@ def compute_loss(pred, gt, meta_info, args):
         right_valid,
     )
 
+    joints3d_cam_r_gt = gt["mano.j3d.cam.r"]
+    joints3d_cam_r_pred = pred["mano.j3d.cam.r"]
+    is_valid = gt["is_valid"]
+    right_valid = gt["right_valid"] * is_valid
+
+    joints3d_cam_r_gt_ra = joints3d_cam_r_gt - joints3d_cam_r_gt[:, :1, :]
+    joints3d_cam_r_pred_ra = joints3d_cam_r_pred - joints3d_cam_r_pred[:, :1, :]
+    mpjpe_ra_r = vector_loss(
+        joints3d_cam_r_gt_ra, joints3d_cam_r_pred_ra, mse_loss, right_valid
+    )
+
+    loss_mpje_ra_r = mpjpe_ra_r
+    
     # Return each loss and its weight contributin to the total loss
     loss_dict = {
         "loss/mano/cam_t/r": (loss_cam_t_r, 1.0),
         "loss/mano/kp2d/r": (loss_keypoints_r, 1.0),
         "loss/mano/kp3d/r": (loss_keypoints_3d_r, 1.0),
         "loss/mano/pose/r": (loss_regr_pose_r, 1.0),
-        "loss/mano/beta/r": (loss_regr_betas_r, 1.0),
+        "loss/mano/beta/r": (loss_regr_betas_r, 0.001),
+        "loss/mano/mpje_ra" : (loss_mpje_ra_r, 1.0)
     }
     return loss_dict

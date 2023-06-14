@@ -22,7 +22,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 3),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256, 3),
         )
 
         self.shape_init = nn.Sequential(
@@ -30,7 +32,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 10),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256, 10),
         )
 
         self.pose_init = nn.Sequential(
@@ -38,7 +42,9 @@ class HandHMR(nn.Module):
             nn.ELU(),
             nn.Linear(512, 512),
             nn.ELU(),
-            nn.Linear(512, 16 * 3),
+            nn.Linear(512, 256),
+            nn.ELU(),
+            nn.Linear(256, 16 * 6),
         )
         
         self.hand_specs = hand_specs
@@ -46,13 +52,10 @@ class HandHMR(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(1)
 
     def init_vector_dict(self, features):
-        batch_size = features.shape[0]
-        dev = features.device
-        init_pose = (
-            matrix_to_rotation_6d(axis_angle_to_matrix(self.pose_init(features).reshape(batch_size, 16, 3)))
-            .reshape(batch_size, -1)
-        )
 
+        dev = features.device
+
+        init_pose = self.pose_init(features)
         init_shape = self.shape_init(features)
         init_transl = self.cam_init(features)
 
@@ -64,22 +67,18 @@ class HandHMR(nn.Module):
 
         return out
 
-    def forward(self, features, features_refine, use_pool=True):
+    def forward(self, features, use_pool=True):
 
         batch_size = features.shape[0]
         if use_pool:
             feat = self.avgpool(features)
             feat = feat.view(feat.size(0), -1)
-
-            feat_refine = self.avgpool(features_refine)
-            feat_refine = feat_refine.view(feat_refine.size(0), -1)
         else:
             feat = features
-            feat_refine = features_refine
 
         init_vdict = self.init_vector_dict(feat)
         init_cam_t = init_vdict["cam_t/wp"].clone()
-        pred_vdict = self.hmr_layer(feat_refine, init_vdict, self.n_iter)
+        pred_vdict = self.hmr_layer(feat, init_vdict, self.n_iter)
 
         pred_rotmat = rotation_6d_to_matrix(pred_vdict["pose_6d"].reshape(-1, 6)).view(
             batch_size, 16, 3, 3

@@ -9,7 +9,7 @@ from src.callbacks.loss_modules import mano_loss
 mse_loss = nn.MSELoss(reduction="none")
 
 
-def compute_loss(pred, gt, meta_info, args):
+def compute_loss(pred, gt, meta_info, args, epoch):
     # unpacking pred and gt
     pred_betas_r = pred["mano.beta.r"]
     pred_rotmat_r = pred["mano.pose.r"]
@@ -67,10 +67,10 @@ def compute_loss(pred, gt, meta_info, args):
 
     # Return each loss and its weight contributin to the total loss
     loss_dict = {
-        "loss/mano/cam_t/r": (loss_cam_t_r, 1.0),
-        "loss/mano/kp2d/r": (loss_keypoints_r, 1.0),
+        "loss/mano/cam_t/r": (loss_cam_t_r, 1.0 * 2**(-epoch)),
+        "loss/mano/kp2d/r": (loss_keypoints_r, 1.0 * 2**(-epoch)),
         "loss/mano/kp3d/r": (loss_keypoints_3d_r, 1.0),
-        "loss/mano/pose/r": (loss_regr_pose_r, 1.0),
-        "loss/mano/beta/r": (loss_regr_betas_r, 0.001),
+        "loss/mano/pose/r": (loss_regr_pose_r, 1.0 * 2**(-epoch)),
+        "loss/mano/beta/r": (loss_regr_betas_r, 0.001 * 2**(-epoch)),
     }
     return loss_dict

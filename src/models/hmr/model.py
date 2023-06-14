@@ -17,10 +17,13 @@ class HMR(nn.Module):
             from src.nets.backbone.resnet import resnet50 as resnet
         elif backbone == "resnet18":
             from src.nets.backbone.resnet import resnet18 as resnet
+        elif backbone == "resnet152":
+            from src.nets.backbone.resnet import resnet152 as resnet
         elif backbone == 'resnext101_32x8d':
             from src.nets.backbone.resnet import resnext101_32x8d as resnet
         else:
             assert False
+
         self.backbone = resnet(pretrained=True)
 
         feat_dim = get_backbone_info(backbone)["n_output_channels"]
@@ -37,6 +40,7 @@ class HMR(nn.Module):
         self.focal_length = focal_length
 
     def inference(self, images, K):
+
         features = self.backbone(images)
 
         hmr_output_r = self.head_r(features)
@@ -59,6 +63,7 @@ class HMR(nn.Module):
     def forward(self, inputs, meta_info):
         images = inputs["img"]
         K = meta_info["intrinsics"]
+        
         features = self.backbone(images)
 
         hmr_output_r = self.head_r(features)

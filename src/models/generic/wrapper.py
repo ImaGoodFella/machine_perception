@@ -59,8 +59,7 @@ class GenericWrapper(AbstractPL):
         meta_info.register("mano.faces.r", self.mano_r.faces)
         pred = self.model(inputs, meta_info)
         loss_dict = self.loss_fn(
-            pred=pred, gt=targets, meta_info=meta_info, args=self.args, epoch=self.trainer.current_epoch
-        )
+            pred=pred, gt=targets, meta_info=meta_info, args=self.args)
         loss_dict = {k: (loss_dict[k][0].mean(), loss_dict[k][1]) for k in loss_dict}
         loss_dict = mul_loss_dict(loss_dict)
         loss_dict["loss"] = sum(loss_dict[k] for k in loss_dict)

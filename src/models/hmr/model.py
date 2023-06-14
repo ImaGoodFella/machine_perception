@@ -43,7 +43,7 @@ class HMR(nn.Module):
     def inference(self, images, K):
 
         features = self.backbone(images)
-        features_refine = self.backbone(features_refine)
+        features_refine = self.backbone(images)
         hmr_output_r = self.head_r(features, features_refine)
 
         # weak perspective
@@ -66,7 +66,7 @@ class HMR(nn.Module):
         K = meta_info["intrinsics"]
         
         features = self.backbone(images)
-        features_refine = self.backbone(features_refine)
+        features_refine = self.backbone(images)
         hmr_output_r = self.head_r(features, features_refine)
 
         # weak perspective

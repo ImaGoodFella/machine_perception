@@ -66,6 +66,7 @@ def compute_loss(pred, gt, meta_info, args):
     )
 
     # Return each loss and its weight contributin to the total loss
+    # BIGBRAIN
     loss_dict = {
         "loss/mano/cam_t/r": (loss_cam_t_r, 0.001),
         "loss/mano/kp2d/r": (loss_keypoints_r, 0.001),

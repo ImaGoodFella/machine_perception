@@ -2,7 +2,7 @@
 
 This project endeavors to reconstruct the intricate surface of a human hand engaged in interaction, solely from a single RGB image. To capture the three-dimensional form of the hand, we employ the widely recognized MANO model. Our approach employs a comprehensive framework that initially extracts image features via a pre-trained backbone model. Subsequently, a Multilayer Perceptron (MLP) is employed to predict the camera translation, shape, and pose parameters of the MANO model.
 
-Final Report: [Click here](/Machine_Perception_Report_CreditSuissers.pdf)
+Final Report: [Click here](/Machine_Perception_Report_Credit_Suissers.pdf)
 
 # Reproducing the results
 
